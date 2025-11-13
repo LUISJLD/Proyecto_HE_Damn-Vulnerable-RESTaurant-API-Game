@@ -18,8 +18,11 @@ class UserRead(BaseModel):
     last_name: Union[str, None] = None
     role: str
 
-
-class UserUpdate(BaseModel, extra=Extra.allow):
+# Eliminamos extra=Extra.allow aquí ya que no es necesario para la lectura del usuario
+# y puede causar confusión si se reciben campos inesperados.
+# Es la forma más directa de mitigar la vulnerabilidad de Mass Assignment
+# es eliminar la capacidad de aceptar campos arbitrarios 
+class UserUpdate(BaseModel):
     # we use extra=Extra.allow in the model
     # it allows for extra fields passed in HTTP request body
     # so we don't need to specify all fields
