@@ -14,7 +14,6 @@ RUN apt-get -y install libpq-dev gcc vim sudo
 
 COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --upgrade bcrypt
 
 COPY app ./app
 WORKDIR /app
