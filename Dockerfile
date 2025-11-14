@@ -1,4 +1,4 @@
-FROM python:3.10-bookworm as builder
+FROM python:3.10-bookworm AS builder
 
 RUN pip install poetry==1.4.2
 WORKDIR /app
@@ -7,13 +7,15 @@ COPY pyproject.toml poetry.lock ./
 RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
 
 
-FROM python:3.10-slim-bookworm as runtime
+FROM python:3.10-slim-bookworm AS runtime
 
 RUN apt-get update
 RUN apt-get -y install libpq-dev gcc vim sudo
 
 COPY --from=builder /app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade bcrypt
+
 COPY app ./app
 WORKDIR /app
 
