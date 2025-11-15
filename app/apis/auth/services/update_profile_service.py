@@ -3,7 +3,7 @@ from typing import Union
 from apis.auth.utils import get_current_user, get_user_by_username
 from db.models import User
 from db.session import get_db
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing_extensions import Annotated
@@ -18,16 +18,29 @@ class UserUpdate(BaseModel):
     phone_number: Union[str, None] = None
 
 
-@router.put("/profile", response_model=UserUpdate, status_code=status.HTTP_200_OK)
+@router.put("/profile", status_code=status.HTTP_200_OK)
 def update_profile(
     user: UserUpdate,
     current_user: Annotated[User, Depends(get_current_user)],
     db: Session = Depends(get_db),
 ):
+    # Obtener el usuario autenticado
     db_user = get_user_by_username(db, current_user.username)
 
+
+    # Verificar que solo edite su propio perfil
+    if user.username != db_user.username:
+        # Validar que el nuevo username no pertenezca a otro usuario
+        existing_user = get_user_by_username(db, user.username)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not authorized to edit another user's profile"
+            )
+
+    # Actualizar únicamente los campos enviados
     for var, value in user.dict().items():
-        if value:
+        if value is not None:
             setattr(db_user, var, value)
 
     db.add(db_user)
