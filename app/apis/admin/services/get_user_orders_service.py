@@ -16,7 +16,7 @@ def get_user_orders(
 ):
 
     # Validación de control de acceso basada en roles (RBAC) y propiedad del recurso
-    if current_user.role != UserRole.ADMIN.value and current_user.id != user_id:
+    if current_user.role != UserRole.CHEF.value and current_user.id != user_id:
         raise HTTPException(
             status_code=403,
             detail="Unauthorized access: You cannot view other users' orders"
